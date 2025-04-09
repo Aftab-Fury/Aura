@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <h2>Welcome, {{ user.username }}!</h2>
+
+        <div style="margin: 10px 0;">
+            <a href="{% url 'post_question' %}">Post a Question</a> |
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+
+        {% if user.is_superuser %}
+            <div style="margin: 10px 0;">
+                <a href="{% url 'admin:index' %}">Admin Panel</a>
+            </div>
+        {% endif %}
+
+        <hr>
+
+        <h3>All Questions</h3>
+
+        {% if object_list %}
+            <form method="get" style="margin-bottom: 15px;">
+                <label for="sort">Sort by: </label>
+                <select name="sort" id="sort" onchange="this.form.submit()">
+                    <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Most
+                        Recent
+                    </option>
+                    <option value="likes" {% if request.GET.sort == 'likes' %}selected{% endif %}>Most Liked</option>
+                </select>
+            </form>
+            {% for question in object_list %}
+                <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                    <h4><a href="{% url 'question_detail' question.pk %}">{{ question.title }}</a></h4>
+                    <p>{{ question.body|truncatewords:25 }}</p>
+                    <p><small>by {{ question.author.username }} | {{ question.created_at|date:"M d, Y H:i" }}</small>
+                    </p>
+                    <p>Total Likes on Answers: {{ question.total_likes }}</p>
+
+                    {% if question.author == user or user.is_superuser %}
+                        <a href="{% url 'edit_question' question.pk %}">Edit</a> |
+                        <a href="{% url 'delete_question' question.pk %}">Delete</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No questions posted yet.</p>
+        {% endif %}
+
+    {% else %}
+        <h3>You must be <a href="{% url 'login' %}">logged in</a> to view questions.</h3>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
+    {% endif %}
+
+{% endblock %}
+
+
+

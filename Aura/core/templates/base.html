@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aura</title>
+</head>
+<body>
+    <nav>{% if user.is_authenticated %}
+            <p>
+                Hi {{ user.username }} |
+                <a href="{% url 'logout' %}">Logout</a> |
+                <a href="{% url 'post_question' %}">Post Question</a> |
+                <a href="{% url 'home' %}">View Questions</a>
+            </p>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a> |
+            <a href="{% url 'home' %}">View Questions</a>
+        {% endif %}
+        <hr>
+    </nav>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

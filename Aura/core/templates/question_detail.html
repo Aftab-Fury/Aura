@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ question.title }}</h2>
+<p>{{ question.body }}</p>
+<p><strong>Posted by:</strong> {{ question.author.username }} | <small>{{ question.created_at|date:"M d, Y H:i" }}</small></p>
+
+{% if user == question.author or user.is_staff %}
+  <a href="{% url 'edit_question' question.id %}">Edit</a> |
+  <a href="{% url 'delete_question' question.id %}">Delete</a>
+{% endif %}
+
+<hr>
+
+<h3>Answers:</h3>
+<ul>
+  {% for answer in answers %}
+    <li style="margin-bottom: 10px;">
+      {{ answer.body }}<br>
+      <small>by {{ answer.author.username }} | {{ answer.created_at|date:"M d, Y H:i" }}</small><br>
+
+      {% if user.is_authenticated %}
+        {% if answer.author == user or user.is_staff %}
+          <a href="{% url 'edit_answer' answer.id %}">Edit</a> |
+          <a href="{% url 'delete_answer' answer.id %}">Delete</a> |
+        {% endif %}
+        {% if answer.author != user %}
+          <a href="{% url 'like_answer' answer.id %}">❤️ {{ answer.likes.count }}</a>
+        {% else %}
+          ❤️ {{ answer.likes.count }}
+        {% endif %}
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No answers yet.</li>
+  {% endfor %}
+</ul>
+
+{% if user.is_authenticated %}
+  <hr>
+  <h4>Post Your Answer</h4>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+{% else %}
+  <p><a href="{% url 'login' %}">Login</a> to post an answer.</p>
+{% endif %}
+
+{% endblock %}
